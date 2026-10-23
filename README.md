@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🛡️ KernelGuard
+<img src="docs/assets/kernelguard-logo.png" alt="KernelGuard logo" width="360">
+
+# KernelGuard
 
 **Windows endpoint threat detection with explainable, evidence-first alerts.**
 
