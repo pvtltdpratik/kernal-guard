@@ -1,0 +1,15 @@
+[project]
+name = "kernelguard-server"
+version = "0.1.0"
+description = "KernelGuard Windows endpoint threat detection backend"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = [
+    "error::DeprecationWarning:app.*",
+    # Expression indexes (migration 0003) can't be reflected; they are covered by
+    # tests/test_migrations.py::test_correlation_lookups_use_expression_index.
+    "ignore:Skipped unsupported reflection of expression-based index:sqlalchemy.exc.SAWarning",
+]

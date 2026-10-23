@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "client",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "client", "run", "dev"],
+      "port": 3000,
+      "url": "http://localhost:3000"
+    },
+    {
+      "name": "client-prod",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "client", "run", "start"],
+      "port": 3000,
+      "url": "http://localhost:3000"
+    }
+  ]
+}

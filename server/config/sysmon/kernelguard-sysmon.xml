@@ -1,0 +1,165 @@
+<!--
+  KernelGuard Sysmon configuration (starting point - tune for your host).
+
+  Written for Sysmon 15.22 (schema 4.91); fields and rule names validated
+  against `Sysmon64.exe -s`. Not yet loaded into a running Sysmon;
+  check with: sysmon64.exe -c kernelguard-sysmon.xml  (after install)
+
+  Privacy: ClipboardChange (24) is disabled and file-delete archiving is off.
+  Sysmon never records keystrokes; command lines may still contain secrets
+  passed on the command line.
+
+  Semantics: onmatch="exclude" with no rules logs every event of that type;
+  onmatch="include" with no rules logs none.
+-->
+<Sysmon schemaversion="4.91">
+  <HashAlgorithms>SHA256,SHA1,MD5,IMPHASH</HashAlgorithms>
+  <CheckRevocation>False</CheckRevocation>
+
+  <EventFiltering>
+    <!-- 1: all process creation (core telemetry for correlation) -->
+    <RuleGroup name="ProcessCreate" groupRelation="or">
+      <ProcessCreate onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- 2: timestomping - off (high noise from installers/browsers) -->
+    <RuleGroup name="FileCreateTime" groupRelation="or">
+      <FileCreateTime onmatch="include" />
+    </RuleGroup>
+
+    <!-- 3: all network connections (tune: exclude browsers if too noisy) -->
+    <RuleGroup name="NetworkConnect" groupRelation="or">
+      <NetworkConnect onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- 5: all process termination (needed to bound process lifetimes / PID reuse) -->
+    <RuleGroup name="ProcessTerminate" groupRelation="or">
+      <ProcessTerminate onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- 6: all driver loads -->
+    <RuleGroup name="DriverLoad" groupRelation="or">
+      <DriverLoad onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- 7: image loads - unsigned modules and modules from user-writable paths only -->
+    <RuleGroup name="ImageLoad" groupRelation="or">
+      <ImageLoad onmatch="include">
+        <Signed condition="is">false</Signed>
+        <ImageLoaded condition="contains">\AppData\</ImageLoaded>
+        <ImageLoaded condition="contains">\Temp\</ImageLoaded>
+        <ImageLoaded condition="begin with">C:\Users\Public\</ImageLoaded>
+        <ImageLoaded condition="begin with">C:\ProgramData\</ImageLoaded>
+      </ImageLoad>
+    </RuleGroup>
+
+    <!-- 8: all remote thread creation -->
+    <RuleGroup name="CreateRemoteThread" groupRelation="or">
+      <CreateRemoteThread onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- 9: raw disk reads -->
+    <RuleGroup name="RawAccessRead" groupRelation="or">
+      <RawAccessRead onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- 10: process access - LSASS and calls from unbacked (possibly injected) code -->
+    <RuleGroup name="ProcessAccess" groupRelation="or">
+      <ProcessAccess onmatch="include">
+        <TargetImage condition="end with">\lsass.exe</TargetImage>
+        <CallTrace condition="contains">UNKNOWN</CallTrace>
+      </ProcessAccess>
+    </RuleGroup>
+
+    <!-- 11: file creation - autostart locations and executable/script drops -->
+    <RuleGroup name="FileCreate" groupRelation="or">
+      <FileCreate onmatch="include">
+        <TargetFilename condition="contains">\Start Menu\Programs\Startup\</TargetFilename>
+        <TargetFilename condition="begin with">C:\Windows\System32\Tasks\</TargetFilename>
+        <TargetFilename condition="end with">.exe</TargetFilename>
+        <TargetFilename condition="end with">.dll</TargetFilename>
+        <TargetFilename condition="end with">.sys</TargetFilename>
+        <TargetFilename condition="end with">.scr</TargetFilename>
+        <TargetFilename condition="end with">.ps1</TargetFilename>
+        <TargetFilename condition="end with">.vbs</TargetFilename>
+        <TargetFilename condition="end with">.js</TargetFilename>
+        <TargetFilename condition="end with">.hta</TargetFilename>
+        <TargetFilename condition="end with">.bat</TargetFilename>
+        <TargetFilename condition="end with">.cmd</TargetFilename>
+        <TargetFilename condition="end with">.lnk</TargetFilename>
+      </FileCreate>
+    </RuleGroup>
+
+    <!-- 12/13/14: registry - common persistence and hijack locations -->
+    <RuleGroup name="Registry" groupRelation="or">
+      <RegistryEvent onmatch="include">
+        <TargetObject condition="contains">\CurrentVersion\Run</TargetObject>
+        <TargetObject condition="contains">\Policies\Explorer\Run</TargetObject>
+        <TargetObject condition="contains">\Winlogon\</TargetObject>
+        <TargetObject condition="contains">\Image File Execution Options\</TargetObject>
+        <TargetObject condition="contains">\SilentProcessExit\</TargetObject>
+        <TargetObject condition="end with">\AppInit_DLLs</TargetObject>
+        <TargetObject condition="end with">\Windows\Load</TargetObject>
+        <TargetObject condition="end with">\ImagePath</TargetObject>
+        <TargetObject condition="end with">\ServiceDll</TargetObject>
+        <TargetObject condition="contains">\Environment\UserInitMprLogonScript</TargetObject>
+        <TargetObject condition="contains">\InprocServer32\</TargetObject>
+      </RegistryEvent>
+    </RuleGroup>
+
+    <!-- 15: alternate data streams - off -->
+    <RuleGroup name="FileCreateStreamHash" groupRelation="or">
+      <FileCreateStreamHash onmatch="include" />
+    </RuleGroup>
+
+    <!-- 17/18: named pipes - off -->
+    <RuleGroup name="PipeEvent" groupRelation="or">
+      <PipeEvent onmatch="include" />
+    </RuleGroup>
+
+    <!-- 19/20/21: all WMI event subscriptions (persistence, low volume) -->
+    <RuleGroup name="WmiEvent" groupRelation="or">
+      <WmiEvent onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- 22: all DNS queries -->
+    <RuleGroup name="DnsQuery" groupRelation="or">
+      <DnsQuery onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- 23: file delete with archiving - off (copies deleted files to disk) -->
+    <RuleGroup name="FileDelete" groupRelation="or">
+      <FileDelete onmatch="include" />
+    </RuleGroup>
+
+    <!-- 24: clipboard - off for privacy -->
+    <RuleGroup name="ClipboardChange" groupRelation="or">
+      <ClipboardChange onmatch="include" />
+    </RuleGroup>
+
+    <!-- 25: all process tampering (hollowing / herpaderping) -->
+    <RuleGroup name="ProcessTampering" groupRelation="or">
+      <ProcessTampering onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- 26: file delete detection (no archiving) - executables in user-writable paths -->
+    <RuleGroup name="FileDeleteDetected" groupRelation="or">
+      <FileDeleteDetected onmatch="include">
+        <TargetFilename condition="end with">.exe</TargetFilename>
+        <TargetFilename condition="end with">.dll</TargetFilename>
+        <TargetFilename condition="end with">.ps1</TargetFilename>
+      </FileDeleteDetected>
+    </RuleGroup>
+
+    <!-- 27/28/29: blocking and detection features - off; KernelGuard is read-only -->
+    <RuleGroup name="FileBlockExecutable" groupRelation="or">
+      <FileBlockExecutable onmatch="include" />
+    </RuleGroup>
+    <RuleGroup name="FileBlockShredding" groupRelation="or">
+      <FileBlockShredding onmatch="include" />
+    </RuleGroup>
+    <RuleGroup name="FileExecutableDetected" groupRelation="or">
+      <FileExecutableDetected onmatch="include" />
+    </RuleGroup>
+  </EventFiltering>
+</Sysmon>

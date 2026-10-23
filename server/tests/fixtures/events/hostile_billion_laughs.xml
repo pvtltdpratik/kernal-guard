@@ -1,0 +1,3 @@
+<?xml version="1.0"?>
+<!DOCTYPE lolz [<!ENTITY lol "lol"><!ENTITY lol2 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;"><!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">]>
+<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><EventID>1</EventID><EventRecordID>5001</EventRecordID><TimeCreated SystemTime='2026-10-20T09:00:00.0000000Z'/></System><EventData><Data Name='Image'>&lol3;</Data></EventData></Event>

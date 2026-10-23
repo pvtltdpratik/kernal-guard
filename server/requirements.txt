@@ -1,0 +1,10 @@
+fastapi==0.161.1
+uvicorn[standard]==0.54.0
+pydantic==2.14.1
+pydantic-settings==2.15.0
+SQLAlchemy==2.0.55
+alembic==1.20.1
+# Hardened XML parsing for untrusted event XML
+defusedxml==0.7.1
+# Windows Event Log (wevtapi) bindings; collector only
+pywin32==312; sys_platform == "win32"

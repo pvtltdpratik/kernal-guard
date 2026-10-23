@@ -1,0 +1,1 @@
+<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><EventID>1</EventID><EventRecordID>5003</EventRecordID><TimeCreated SystemTime='2026-10-20T09:00:00.0000000Z'/></System><EventData><Data Name='Image'>unterminated

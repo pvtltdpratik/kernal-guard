@@ -1,0 +1,14 @@
+{
+  "incident_window_minutes": 60,
+  "max_evidence_per_alert": 25,
+  "rules": {
+    "KG-FILE-001": { "enabled": true },
+    "KG-SPY-001": { "thresholds": { "min_processes": 3, "window_minutes": 10 } },
+    "KG-SPY-002": { "thresholds": { "min_categories": 3 } },
+    "KG-FILE-002": { "thresholds": { "window_minutes": 1440 } }
+  },
+  "allowlist": {
+    "images": [],
+    "sha256": []
+  }
+}
